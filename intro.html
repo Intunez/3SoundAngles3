@@ -1,1 +1,118 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <title>Introfilmpje</title>
 
+  <style>
+    body {
+      margin: 0;
+      background: #000;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      color: white;
+      text-align: center;
+    }
+
+    /* Navigatiebalk */
+    .nav-buttons {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      padding: 18px 20px;
+      background: linear-gradient(180deg, #2e104b, #1b0733);
+      border-bottom: 3px solid #ff4fd6;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.6);
+    }
+
+    .nav-buttons a {
+      font-size: 18px;
+      font-weight: 800;
+      color: #ffffff;
+      text-decoration: none;
+      background: rgba(12, 0, 32, 0.9);
+      padding: 10px 26px;
+      border-radius: 999px;
+      letter-spacing: 0.5px;
+      transition: 0.2s ease;
+    }
+
+    .nav-buttons a:hover {
+      background: #ff4fd6;
+      transform: translateY(-2px) scale(1.04);
+    }
+
+    .page {
+      margin-top: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h2 {
+      margin-bottom: 10px;
+      font-size: 32px;
+    }
+
+    video {
+      max-width: 90%;
+      height: auto;
+      background: #000;
+      margin-top: 20px;
+    }
+
+    #skipButton {
+      margin-top: 20px;
+      padding: 12px 24px;
+      font-size: 18px;
+      background: #ffffff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    #skipButton:hover {
+      background: #e6e6e6;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- NAVIGATIE -->
+  <div class="nav-buttons">
+    <a href="home.html">Home</a>
+    <a href="intro.html">Intro</a>
+    <a href="level1.html">Level 1</a>
+    <a href="level2.html">Level 2</a>
+  </div>
+
+  <!-- INHOUD -->
+  <div class="page">
+    <h2>Intro level 1 en level 2</h2>
+
+    <video id="introVideo" src="intro.mp4" controls></video>
+
+    <button id="skipButton">Ga verder naar het spel</button>
+  </div>
+
+  <script>
+    const video = document.getElementById('introVideo');
+    const skipButton = document.getElementById('skipButton');
+
+    video.addEventListener('ended', () => {
+      window.location.href = 'home.html';
+    });
+
+    skipButton.addEventListener('click', () => {
+      window.location.href = 'home.html';
+    });
+  </script>
+
+</body>
+</html>
