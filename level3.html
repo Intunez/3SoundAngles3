@@ -1,1 +1,658 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Soundangles – Level 3: Hoeksommen</title>
+
+  <style>
+    :root{
+      --bg1:#1a0b2e; 
+      --bg2:#3b0b4e; 
+      --panel:#1d1233; 
+      --ink:#f8f1ff; 
+      --muted:#d7c8ef;
+      --accent:#ff52d9; 
+      --accent2:#a855f7; 
+      --good:#22c55e; 
+      --bad:#ef4444;
+    }
+
+    *{box-sizing:border-box}
+
+    html,body{height:100%}
+
+    body{
+      margin:0;
+      font-family:"Nunito",system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Inter,Arial,sans-serif;
+      color:var(--ink);
+      background:radial-gradient(1400px 800px at 70% -10%, var(--bg2) 0%, var(--bg1) 60%);
+      display:flex;
+      flex-direction:column;
+    }
+
+    /* NAVIGATIEBALK BOVENAAN (het paarse lint) */
+    .nav-buttons {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      padding: 18px 20px;
+      background: linear-gradient(180deg, #2e104b, #1b0733);
+      border-bottom: 3px solid #ff4fd6;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.6);
+      position:sticky;
+      top:0;
+      z-index:10;
+    }
+
+    .nav-buttons a {
+      font-size: 18px;
+      font-weight: 800;
+      color: #ffffff;
+      text-decoration: none;
+      background: rgba(12, 0, 32, 0.9);
+      padding: 10px 26px;
+      border-radius: 999px;
+      letter-spacing: 0.5px;
+      transition: 0.2s ease;
+    }
+
+    .nav-buttons a:hover {
+      background: #ff4fd6;
+      transform: translateY(-2px) scale(1.04);
+    }
+
+    .nav-buttons a.current{
+      background:#ff4fd6;
+      color:#160824;
+    }
+
+    /* PAGINA-LAY-OUT LEVEL 3 */
+    .wrap{
+      max-width:980px;
+      width:100%;
+      margin:40px auto 32px;
+      padding:0 14px 40px;
+    }
+
+    header{
+      display:flex;
+      flex-wrap:wrap;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      margin-bottom:12px;
+    }
+
+    h1{
+      margin:0;
+      font-size:clamp(24px,3vw,32px);
+      letter-spacing:.06em;
+      text-transform:uppercase;
+    }
+
+    .hud{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      align-items:center;
+      font-size:14px;
+    }
+
+    .pill{
+      display:inline-flex;
+      gap:6px;
+      align-items:center;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.25);
+      background:rgba(0,0,0,.25);
+      color:var(--muted);
+    }
+
+    .panel{
+      background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.02));
+      border-radius:20px;
+      border:1px solid rgba(255,255,255,.12);
+      box-shadow:0 16px 40px rgba(0,0,0,.45);
+      padding:16px 16px 18px;
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+    }
+
+    .toprow{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    #prompt{
+      margin:0 0 4px 0;
+      font-size:20px;
+    }
+
+    .muted{color:var(--muted);font-size:14px;}
+
+    /* Afbeelding / diagram */
+    .diagram-wrap{
+      border-radius:18px;
+      padding:10px;
+      background:
+        linear-gradient(90deg, rgba(255,82,217,.28), rgba(168,85,247,.28)) padding-box,
+        linear-gradient(90deg, rgba(255,255,255,.18), rgba(255,255,255,.06)) border-box;
+      border:2px solid transparent;
+    }
+    .diagram{
+      border-radius:14px;
+      overflow:hidden;
+      background:rgba(0,0,0,.35);
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      min-height:260px;
+    }
+    .diagram img{
+      max-width:100%;
+      height:auto;
+      display:block;
+    }
+
+    /* Onderste bediening */
+    .controls{
+      display:flex;
+      flex-wrap:wrap;
+      gap:14px;
+      justify-content:space-between;
+      align-items:flex-start;
+    }
+
+    .music-controls{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      align-items:center;
+      font-size:14px;
+    }
+
+    .options{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:10px;
+      max-width:420px;
+      width:100%;
+    }
+    @media (min-width:640px){
+      .options{grid-template-columns:1fr;}
+    }
+
+    .opt{
+      padding:12px 14px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(10,3,30,.9);
+      cursor:pointer;
+      font-weight:800;
+      text-align:center;
+      font-size:16px;
+      box-shadow:0 8px 22px rgba(0,0,0,.4);
+      transition:.15s background ease, .15s transform ease, .15s box-shadow ease;
+    }
+    .opt:hover{
+      background:rgba(30,10,60,.95);
+      transform:translateY(-1px);
+      box-shadow:0 10px 26px rgba(0,0,0,.6);
+    }
+    .opt.correct{
+      background:rgba(34,197,94,.16);
+      border-color:var(--good);
+      box-shadow:0 0 0 1px rgba(34,197,94,.7);
+    }
+    .opt.wrong{
+      background:rgba(239,68,68,.16);
+      border-color:var(--bad);
+      box-shadow:0 0 0 1px rgba(239,68,68,.7);
+    }
+
+    button{
+      appearance:none;
+      border:none;
+      border-radius:16px;
+      padding:8px 14px;
+      font-weight:800;
+      cursor:pointer;
+      background:linear-gradient(180deg,var(--accent),var(--accent2));
+      color:#160824;
+      font-size:14px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+      box-shadow:0 8px 20px rgba(0,0,0,.5);
+      transition:.15s transform ease,.2s filter ease;
+    }
+    button:hover{filter:brightness(1.06);}
+    button:active{transform:translateY(1px);}
+    button:disabled{
+      opacity:.55;
+      cursor:default;
+      box-shadow:none;
+    }
+
+    .feedback{
+      min-height:20px;
+      font-size:15px;
+      margin-top:4px;
+    }
+
+    .progress-dots{
+      display:flex;
+      gap:6px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    .dot{
+      width:11px;
+      height:11px;
+      border-radius:50%;
+      background:#2a2347;
+      border:1px solid rgba(255,255,255,.25);
+      opacity:.8;
+    }
+    .dot.active{
+      background:linear-gradient(180deg,var(--accent),var(--accent2));
+      box-shadow:0 0 0 4px rgba(255,82,217,.4);
+      opacity:1;
+    }
+    .dot.done{
+      background:#da7df4;
+      opacity:1;
+    }
+
+    .overlay{
+      position:fixed;
+      inset:0;
+      background:rgba(5,0,15,.88);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:50;
+    }
+    .endbox{
+      background:var(--panel);
+      border-radius:20px;
+      border:1px solid rgba(255,255,255,.18);
+      padding:22px 20px 18px;
+      max-width:420px;
+      text-align:center;
+      box-shadow:0 18px 46px rgba(0,0,0,.7);
+    }
+    .endbox h2{
+      margin:0 0 8px 0;
+    }
+    .endbox p{
+      margin:4px 0 10px 0;
+      color:var(--muted);
+      font-size:14px;
+    }
+    .end-buttons{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      justify-content:center;
+      margin-top:8px;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- NAVIGATIEBALK -->
+  <div class="nav-buttons">
+    <a href="home.html">Home</a>
+    <a href="intro.html">Intro</a>
+    <a href="level1.html">Level 1</a>
+    <a href="level2.html">Level 2</a>
+    <a href="level3.html" class="current">Level 3</a>
+  </div>
+
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>LEVEL 3 — Hoeksommen</h1>
+        <div class="muted">
+          Kijk naar de figuur, luister naar de muziek en kies de juiste som van de hoeken.
+        </div>
+      </div>
+      <div class="hud">
+        <div class="progress-dots" id="progressDots"></div>
+        <span class="pill">Vraag <strong id="round">1</strong>/<strong id="total">0</strong></span>
+        <span class="pill">Score <strong id="score">0</strong></span>
+        <button id="resetBtn">Herstart</button>
+      </div>
+    </header>
+
+    <section class="panel">
+      <div class="toprow">
+        <div>
+          <h2 id="prompt">Vraag…</h2>
+          <div class="muted">
+            Bepaal de som van de **binnenhoeken** van deze figuur.
+          </div>
+        </div>
+        <button id="nextBtn" disabled>Volgende vraag</button>
+      </div>
+
+      <div class="diagram-wrap">
+        <div class="diagram">
+          <img id="shapeImg" src="" alt="Figuur">
+        </div>
+      </div>
+
+      <div class="controls">
+        <div class="music-controls">
+          <button id="listenBtn">🎵 Nog eens luisteren</button>
+          <button id="stopBtn">⏹ Stop muziek</button>
+          <span class="muted" id="musicLabel"></span>
+        </div>
+
+        <div class="options" id="options"></div>
+      </div>
+
+      <div class="feedback" id="feedback"></div>
+    </section>
+  </div>
+
+  <!-- EINDSCHERM -->
+  <div class="overlay" id="endOverlay">
+    <div class="endbox">
+      <h2>Klaar met Level 3!</h2>
+      <p id="finalScore">Je score: 0/0</p>
+      <p>Wil je het nog eens spelen of terug naar het overzicht?</p>
+      <div class="end-buttons">
+        <button id="againBtn">Speel Level 3 opnieuw</button>
+        <button onclick="window.location.href='home.html'">⬅ Naar overzicht</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+  /* ========= VRAGEN & AUDIOKOPPELING ========= */
+
+  const QUESTIONS = [
+    // 1–3 driehoeken → som = 180°
+    {
+      img: "images/scherphoekige_driehoek.png",
+      audio: "audio/sabre_dance_level3.mp3",
+      type: "triangle"
+    },
+    {
+      img: "images/stomphoekige_driekhoek.png",
+      audio: "audio/lean_on_me_level3.mp3",
+      type: "triangle"
+    },
+    {
+      img: "images/Rechthoekige_driehoek.png",
+      audio: "audio/mars_militaire.mp3",
+      type: "triangle"
+    },
+
+    // 4–6 vierhoeken → som = 360°
+    {
+      img: "images/Vierhoek_1.png",
+      audio: "audio/vierhoek_level3.mp3",
+      type: "quadrilateral"
+    },
+    {
+      img: "images/Vierhoek_2.png",
+      audio: "audio/vierhoek_level3.mp3",
+      type: "quadrilateral"
+    },
+    {
+      img: "images/Vierhoek_3.png",
+      audio: "audio/vierhoek_level3.mp3",
+      type: "quadrilateral"
+    },
+
+    // 7–10 veelhoeken → som = (n-2).180° of aantal driehoeken.180°
+    {
+      img: "images/veelhoek_1.png",
+      audio: "audio/veelhoek_level3.mp3",
+      type: "polygon"
+    },
+    {
+      img: "images/veelhoek_2.png",
+      audio: "audio/veelhoek_level3.mp3",
+      type: "polygon"
+    },
+    {
+      img: "images/veelhoek_3.png",
+      audio: "audio/veelhoek_level3.mp3",
+      type: "polygon"
+    },
+    {
+      img: "images/veelhoek_4.png",
+      audio: "audio/veelhoek_level3.mp3",
+      type: "polygon"
+    }
+  ];
+
+  const TOTAL = QUESTIONS.length;
+
+  // Antwoordtypes – alleen de som, zoals jij het wilde
+  const ANSWER_TYPES = [
+    { id: "triangle",      label: "Som = 180°" },
+    { id: "quadrilateral", label: "Som = 360°" },
+    { id: "polygon",       label: "Som = (n-2).180° of aantal driehoeken.180°" }
+  ];
+
+  /* ========= ELEMENTEN ========= */
+
+  const imgEl        = document.getElementById("shapeImg");
+  const promptEl     = document.getElementById("prompt");
+  const optionsEl    = document.getElementById("options");
+  const feedbackEl   = document.getElementById("feedback");
+  const scoreEl      = document.getElementById("score");
+  const roundEl      = document.getElementById("round");
+  const totalEl      = document.getElementById("total");
+  const progressDots = document.getElementById("progressDots");
+  const listenBtn    = document.getElementById("listenBtn");
+  const stopBtn      = document.getElementById("stopBtn");
+  const resetBtn     = document.getElementById("resetBtn");
+  const nextBtn      = document.getElementById("nextBtn");
+  const musicLabel   = document.getElementById("musicLabel");
+  const endOverlay   = document.getElementById("endOverlay");
+  const finalScoreEl = document.getElementById("finalScore");
+  const againBtn     = document.getElementById("againBtn");
+
+  totalEl.textContent = TOTAL;
+
+  // voortgangstipjes
+  for(let i=0;i<TOTAL;i++){
+    const d = document.createElement('div');
+    d.className = 'dot' + (i===0 ? ' active' : '');
+    d.id = 'dot'+i;
+    progressDots.appendChild(d);
+  }
+
+  /* ========= AUDIO ========= */
+
+  let currentAudio = null;
+
+  function stopCurrentAudio(){
+    if(currentAudio){
+      currentAudio.pause();
+      currentAudio.currentTime = 0;
+      currentAudio = null;
+    }
+  }
+
+  function playAudioForQuestion(q){
+    stopCurrentAudio();
+    const a = new Audio(q.audio);
+    currentAudio = a;
+    a.play().catch(()=>{});
+    musicLabel.textContent = "Luister naar de muziek voor deze figuur.";
+  }
+
+  stopBtn.addEventListener('click', ()=>{
+    stopCurrentAudio();
+  });
+
+  /* ========= SPEL-STATE ========= */
+
+  let order = [];
+  let state = {
+    index: 0,
+    score: 0,
+    locked: false,
+    finished: false
+  };
+
+  function shuffle(arr){
+    for(let i=arr.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [arr[i],arr[j]] = [arr[j],arr[i]];
+    }
+    return arr;
+  }
+
+  function updateDots(){
+    for(let i=0;i<TOTAL;i++){
+      const d = document.getElementById('dot'+i);
+      d.classList.remove('active','done');
+      if(i < state.index) d.classList.add('done');
+      if(i === state.index) d.classList.add('active');
+    }
+  }
+
+  function resetGame(){
+    order = shuffle([...Array(TOTAL).keys()]);
+    state.index = 0;
+    state.score = 0;
+    state.locked = false;
+    state.finished = false;
+    scoreEl.textContent = 0;
+    roundEl.textContent = 1;
+    nextBtn.disabled = true;
+    feedbackEl.textContent = "";
+    stopCurrentAudio();
+    updateDots();
+    loadQuestion();
+  }
+
+  function loadQuestion(){
+    const q = QUESTIONS[order[state.index]];
+    state.current = q;
+    state.locked = false;
+    feedbackEl.textContent = "";
+    nextBtn.disabled = true;
+
+    // Tekst
+    promptEl.textContent = "Wat is de som van de binnenhoeken van deze figuur?";
+    roundEl.textContent = state.index + 1;
+
+    // Afbeelding
+    imgEl.src = q.img;
+    imgEl.alt = "Figuur " + (state.index+1);
+
+    // Antwoordknoppen
+    optionsEl.innerHTML = "";
+    ANSWER_TYPES.forEach(type=>{
+      const btn = document.createElement('div');
+      btn.className = 'opt';
+      btn.textContent = type.label;
+      btn.dataset.id = type.id;
+      btn.addEventListener('click', ()=>handleAnswer(type.id, btn));
+      optionsEl.appendChild(btn);
+    });
+
+    // muziek automatisch
+    playAudioForQuestion(q);
+  }
+
+  function handleAnswer(chosenId, btnNode){
+    if(state.locked || state.finished) return;
+    state.locked = true;
+
+    const q = state.current;
+    const correctId = q.type;
+
+    // muziek stoppen bij antwoord
+    stopCurrentAudio();
+
+    // alle knoppen updaten
+    const all = [...document.querySelectorAll('.opt')];
+    all.forEach(n=>{
+      const id = n.dataset.id;
+      const isCorrect = (id === correctId);
+      n.classList.toggle('correct', isCorrect);
+      if(!isCorrect && n === btnNode){
+        n.classList.add('wrong');
+      }
+    });
+
+    if(chosenId === correctId){
+      state.score++;
+      scoreEl.textContent = state.score;
+      feedbackEl.textContent = "Goed gedaan! Dit is de juiste som.";
+    } else {
+      let uitleg = "";
+      if(correctId === 'triangle'){
+        uitleg = "Correcte som is 180°.";
+      } else if(correctId === 'quadrilateral'){
+        uitleg = "Correcte som is 360°.";
+      } else if(correctId === 'polygon'){
+        uitleg = "Correcte som is (n-2).180° of aantal driehoeken.180°.";
+      }
+      feedbackEl.textContent = "Niet helemaal… " + uitleg;
+    }
+
+    if(state.index < TOTAL-1){
+      nextBtn.disabled = false;
+    } else {
+      // laatste vraag → afwerking
+      setTimeout(()=>finishGame(), 1200);
+    }
+  }
+
+  function finishGame(){
+    if(state.finished) return;
+    state.finished = true;
+    finalScoreEl.textContent = "Je score: " + state.score + " / " + TOTAL;
+    endOverlay.style.display = 'flex';
+  }
+
+  nextBtn.addEventListener('click', ()=>{
+    if(state.index >= TOTAL-1) return;
+    state.index++;
+    updateDots();
+    loadQuestion();
+  });
+
+  resetBtn.addEventListener('click', ()=>{
+    endOverlay.style.display = 'none';
+    resetGame();
+  });
+
+  againBtn.addEventListener('click', ()=>{
+    endOverlay.style.display = 'none';
+    resetGame();
+  });
+
+  listenBtn.addEventListener('click', ()=>{
+    if(state.current){
+      playAudioForQuestion(state.current);
+    }
+  });
+
+  // START
+  resetGame();
+</script>
+
+</body>
+</html>
 
