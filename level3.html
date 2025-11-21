@@ -160,13 +160,19 @@
       display:block;
     }
 
-    /* Onderste bediening */
-    .controls{
+    /* Rij met hoofdvraag + bonusvragen */
+    .qa-row{
       display:flex;
       flex-wrap:wrap;
-      gap:14px;
-      justify-content:space-between;
+      gap:16px;
       align-items:flex-start;
+    }
+
+    .controls{
+      flex:1 1 260px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
     }
 
     .music-controls{
@@ -177,33 +183,19 @@
       font-size:14px;
     }
 
-    /* kolom met hoofd- + bonusvraag */
-    .answer-columns{
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px;
-      flex:1;
-      justify-content:flex-end;
-    }
-
     .options{
       display:grid;
       grid-template-columns:1fr;
       gap:10px;
-      max-width:260px;
       width:100%;
     }
 
-    .extra-block{
-      flex:1;
-      min-width:220px;
+    @media (min-width:720px){
+      .options{
+        grid-template-columns:1fr;
+      }
     }
 
-    .extra-block .muted{
-      margin-bottom:4px;
-    }
-
-    /* antwoordknoppen (hoofdvraag + bonusvraag) */
     .opt-main,
     .opt-extra{
       padding:12px 14px;
@@ -234,6 +226,14 @@
       background:rgba(239,68,68,.16);
       border-color:var(--bad);
       box-shadow:0 0 0 1px rgba(239,68,68,.7);
+    }
+
+    .extra-block{
+      flex:1 1 260px;
+      background:rgba(10,3,30,.85);
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.18);
+      padding:10px 12px;
     }
 
     button{
@@ -324,16 +324,6 @@
       justify-content:center;
       margin-top:8px;
     }
-
-    @media (max-width:720px){
-      .answer-columns{
-        flex-direction:column;
-        align-items:stretch;
-      }
-      .options{
-        max-width:none;
-      }
-    }
   </style>
 </head>
 <body>
@@ -380,21 +370,22 @@
         </div>
       </div>
 
-      <div class="controls">
-        <div class="music-controls">
-          <button id="listenBtn">🎵 Nog eens luisteren</button>
-          <button id="stopBtn">⏹ Stop muziek</button>
-          <span class="muted" id="musicLabel"></span>
+      <div class="qa-row">
+        <!-- Hoofdvraag links -->
+        <div class="controls">
+          <div class="music-controls">
+            <button id="listenBtn">🎵 Nog eens luisteren</button>
+            <button id="stopBtn">⏹ Stop muziek</button>
+            <span class="muted" id="musicLabel"></span>
+          </div>
+
+          <div class="options" id="options"></div>
         </div>
 
-        <div class="answer-columns">
-          <div class="options" id="options"></div>
-
-          <!-- BONUSVRAAG (rechts naast hoofdvraag op grotere schermen) -->
-          <div class="extra-block" id="extraContainer" style="display:none;">
-            <div class="muted" id="extraQuestionText"></div>
-            <div class="options" id="extraOptions"></div>
-          </div>
+        <!-- Bonusvragen rechts -->
+        <div class="extra-block" id="extraContainer" style="display:none;">
+          <div class="muted" id="extraQuestionText"></div>
+          <div class="options" id="extraOptions"></div>
         </div>
       </div>
 
@@ -418,28 +409,71 @@
 <script>
   /* ========= VRAGEN & AUDIOKOPPELING ========= */
 
+  // Hoofdvraag is nog altijd: welke hoeksom hoort erbij?
+  const ANSWER_TYPES = [
+    { id: "triangle",      label: "Som = 180°" },
+    { id: "quadrilateral", label: "Som = 360°" },
+    { id: "polygon",       label: "Som = (n-2).180° of aantal driehoeken.180°" }
+  ];
+
   const QUESTIONS = [
-    // 1–3: driehoeken → som = 180°
+    // 1–3: driehoeken → som = 180° + bonus: soort driehoek
     {
       img: "images/scherphoekige_driehoek.png",
       audio: "audio/sabre_dance_level3.mp3",
       type: "triangle",
-      triangleKind: "scherphoekige driehoek"
+      extra: {
+        questions: [
+          {
+            text: "Bonusvraag: welke soort driehoek is dit?",
+            options: [
+              "scherphoekige driehoek",
+              "stomphoekige driehoek",
+              "rechthoekige driehoek"
+            ],
+            correct: "scherphoekige driehoek"
+          }
+        ]
+      }
     },
     {
       img: "images/stomphoekige_driehoek.png",
       audio: "audio/lean_on_me_level3.mp3",
       type: "triangle",
-      triangleKind: "stomphoekige driehoek"
+      extra: {
+        questions: [
+          {
+            text: "Bonusvraag: welke soort driehoek is dit?",
+            options: [
+              "scherphoekige driehoek",
+              "stomphoekige driehoek",
+              "rechthoekige driehoek"
+            ],
+            correct: "stomphoekige driehoek"
+          }
+        ]
+      }
     },
     {
       img: "images/rechthoekige_driehoek.png",
       audio: "audio/mars_militaire.mp3",
       type: "triangle",
-      triangleKind: "rechthoekige driehoek"
+      extra: {
+        questions: [
+          {
+            text: "Bonusvraag: welke soort driehoek is dit?",
+            options: [
+              "scherphoekige driehoek",
+              "stomphoekige driehoek",
+              "rechthoekige driehoek"
+            ],
+            correct: "rechthoekige driehoek"
+          }
+        ]
+      }
     },
 
-    // 4–6: vierhoeken → som = 360°
+    // 4–6: vierhoeken → som = 360°, geen extra
     {
       img: "images/vierhoek_1.png",
       audio: "audio/vierhoek_level3.mp3",
@@ -456,45 +490,99 @@
       type: "quadrilateral"
     },
 
-    // 7–10: veelhoeken → som = (n-2).180° of aantal driehoeken.180°
+    // 7–10: veelhoeken → som = (n-2).180° + extra voor 2,3,4
     {
       img: "images/veelhoek_1.png",
-      audio: "audio/vierhoek_level3.mp3",
-      type: "quadrilateral"
+      audio: "audio/veelhoek_level3.mp3",
+      type: "polygon"
     },
+
+    // veelhoek_2: drie extra deelvragen
     {
       img: "images/veelhoek_2.png",
       audio: "audio/veelhoek_level3.mp3",
-      type: "polygon"
+      type: "polygon",
+      extra: {
+        questions: [
+          {
+            text: "Hoeveel diagonalen kan je in deze veelhoek trekken?",
+            options: ["2", "9", "13"],
+            correct: "9"
+          },
+          {
+            text: "Hoeveel driehoeken komen er dan tevoorschijn?",
+            options: ["3", "10", "14"],
+            correct: "10"
+          },
+          {
+            text: "Hoeveel graden telt deze veelhoek?",
+            options: ["540°", "1800°", "2520°"],
+            correct: "1800°"
+          }
+        ]
+      }
     },
+
+    // veelhoek_3: drie extra deelvragen
     {
       img: "images/veelhoek_3.png",
       audio: "audio/veelhoek_level3.mp3",
-      type: "polygon"
+      type: "polygon",
+      extra: {
+        questions: [
+          {
+            text: "Hoeveel diagonalen kan je in deze veelhoek trekken?",
+            options: ["2", "9", "13"],
+            correct: "2"
+          },
+          {
+            text: "Hoeveel driehoeken komen er dan tevoorschijn?",
+            options: ["3", "10", "14"],
+            correct: "3"
+          },
+          {
+            text: "Hoeveel graden telt deze veelhoek?",
+            options: ["540°", "1800°", "2520°"],
+            correct: "540°"
+          }
+        ]
+      }
     },
+
+    // veelhoek_4: drie extra deelvragen
     {
       img: "images/veelhoek_4.png",
       audio: "audio/veelhoek_level3.mp3",
-      type: "polygon"
+      type: "polygon",
+      extra: {
+        questions: [
+          {
+            text: "Hoeveel diagonalen kan je in deze veelhoek trekken?",
+            options: ["3", "4", "10"],
+            correct: "4"
+          },
+          {
+            text: "Hoeveel driehoeken komen er dan tevoorschijn?",
+            options: ["4", "5", "11"],
+            correct: "5"
+          },
+          {
+            text: "Hoeveel graden telt deze veelhoek?",
+            options: ["720°", "900°", "1980°"],
+            correct: "720°"
+          }
+        ]
+      }
     }
   ];
 
   const TOTAL = QUESTIONS.length;
-  const BONUS_COUNT = QUESTIONS.filter(q => q.triangleKind).length;
-  const MAX_SCORE = TOTAL + BONUS_COUNT; // hoofdvragen + bonusvragen
 
-  // Antwoordtypes – alleen de som
-  const ANSWER_TYPES = [
-    { id: "triangle",      label: "Som = 180°" },
-    { id: "quadrilateral", label: "Som = 360°" },
-    { id: "polygon",       label: "Som = (n-2).180° of aantal driehoeken.180°" }
-  ];
-
-  const TRIANGLE_OPTIONS = [
-    "scherphoekige driehoek",
-    "stomphoekige driehoek",
-    "rechthoekige driehoek"
-  ];
+  // totaal aantal punten (hoofdvraag + alle extra's)
+  const MAX_POINTS = QUESTIONS.reduce((sum, q) => {
+    const extraCount = q.extra ? q.extra.questions.length : 0;
+    return sum + 1 + extraCount;   // 1 voor hoofdvraag
+  }, 0);
 
   /* ========= ELEMENTEN ========= */
 
@@ -515,9 +603,9 @@
   const finalScoreEl = document.getElementById("finalScore");
   const againBtn     = document.getElementById("againBtn");
 
-  const extraContainer   = document.getElementById("extraContainer");
-  const extraQuestionEl  = document.getElementById("extraQuestionText");
-  const extraOptionsEl   = document.getElementById("extraOptions");
+  const extraContainer  = document.getElementById("extraContainer");
+  const extraQuestionEl = document.getElementById("extraQuestionText");
+  const extraOptionsEl  = document.getElementById("extraOptions");
 
   totalEl.textContent = TOTAL;
 
@@ -565,10 +653,11 @@
     index: 0,
     score: 0,
     locked: false,
-    finished: false
+    finished: false,
+    extraOpen: false,
+    extraIndex: 0,
+    extraTotal: 0
   };
-
-  let triangleBonusOpen = false;
 
   function shuffle(arr){
     for(let i=arr.length-1;i>0;i--){
@@ -593,14 +682,20 @@
     state.score = 0;
     state.locked = false;
     state.finished = false;
+    state.extraOpen = false;
+    state.extraIndex = 0;
+    state.extraTotal = 0;
+
     scoreEl.textContent = 0;
     roundEl.textContent = 1;
     nextBtn.disabled = true;
     feedbackEl.textContent = "";
     stopCurrentAudio();
-    triangleBonusOpen = false;
+
     extraContainer.style.display = "none";
     extraOptionsEl.innerHTML = "";
+    extraQuestionEl.textContent = "";
+
     updateDots();
     loadQuestion();
   }
@@ -609,9 +704,13 @@
     const q = QUESTIONS[order[state.index]];
     state.current = q;
     state.locked = false;
+    state.extraOpen = false;
+    state.extraIndex = 0;
+    state.extraTotal = q.extra ? q.extra.questions.length : 0;
+
     feedbackEl.textContent = "";
     nextBtn.disabled = true;
-    triangleBonusOpen = false;
+
     extraContainer.style.display = "none";
     extraOptionsEl.innerHTML = "";
     extraQuestionEl.textContent = "";
@@ -631,7 +730,7 @@
       btn.className = 'opt-main';
       btn.textContent = type.label;
       btn.dataset.id = type.id;
-      btn.addEventListener('click', ()=>handleAnswer(type.id, btn));
+      btn.addEventListener('click', ()=>handleMainAnswer(type.id, btn));
       optionsEl.appendChild(btn);
     });
 
@@ -639,7 +738,7 @@
     playAudioForQuestion(q);
   }
 
-  function handleAnswer(chosenId, btnNode){
+  function handleMainAnswer(chosenId, btnNode){
     if(state.locked || state.finished) return;
     state.locked = true;
 
@@ -667,11 +766,11 @@
       goodSound.currentTime = 0;
       goodSound.play().catch(()=>{});
 
-      // BONUSVRAAG voor driehoek
-      if(q.triangleKind){
-        triangleBonusOpen = true;
-        showTriangleBonusQuestion(q);
-        return; // wacht met 'Volgende vraag' tot bonus beantwoord is
+      // zijn er extra deelvragen?
+      if(state.extraTotal > 0){
+        state.extraOpen = true;
+        renderExtraQuestion();
+        return; // wacht met 'Volgende vraag' tot alle extra's beantwoord zijn
       }
     } else {
       let uitleg = "";
@@ -687,7 +786,7 @@
       badSound.play().catch(()=>{});
     }
 
-    // Geen bonusvraag → gewoon verder
+    // Geen extra vragen → gewoon verder
     if(state.index < TOTAL-1){
       nextBtn.disabled = false;
     } else {
@@ -695,57 +794,64 @@
     }
   }
 
-  function showTriangleBonusQuestion(q){
+  function renderExtraQuestion(){
+    const q = state.current.extra.questions[state.extraIndex];
     extraContainer.style.display = "block";
-    extraQuestionEl.textContent =
-      "Bonusvraag: welke soort driehoek is dit? (telt mee voor je score)";
-
+    extraQuestionEl.textContent = q.text;
     extraOptionsEl.innerHTML = "";
-    TRIANGLE_OPTIONS.forEach(label=>{
+
+    q.options.forEach(optLabel=>{
       const btn = document.createElement('div');
       btn.className = "opt-extra";
-      btn.textContent = label;
-      btn.dataset.kind = label;
-      btn.addEventListener("click", ()=>handleTriangleBonus(label, btn));
+      btn.textContent = optLabel;
+      btn.dataset.value = optLabel;
+      btn.addEventListener("click", ()=>handleExtraAnswer(optLabel, btn));
       extraOptionsEl.appendChild(btn);
     });
   }
 
-  function handleTriangleBonus(chosenLabel, btnNode){
-    if(!triangleBonusOpen) return;
-    triangleBonusOpen = false;
+  function handleExtraAnswer(chosenValue, btnNode){
+    if(!state.extraOpen || state.finished) return;
 
-    const q = state.current;
-    const correctLabel = q.triangleKind;
+    const q = state.current.extra.questions[state.extraIndex];
+    const correctValue = q.correct;
 
     const all = [...document.querySelectorAll('.opt-extra')];
     all.forEach(n=>{
-      const lab = n.dataset.kind;
-      const isCorrect = (lab === correctLabel);
+      const val = n.dataset.value;
+      const isCorrect = (val === correctValue);
       n.classList.toggle('correct', isCorrect);
       if(!isCorrect && n === btnNode){
         n.classList.add('wrong');
       }
     });
 
-    if(chosenLabel === correctLabel){
-      // bonuspunt bij juiste soort driehoek
+    if(chosenValue === correctValue){
       state.score++;
       scoreEl.textContent = state.score;
-      feedbackEl.textContent += " En dit is een " + correctLabel + ".";
+      feedbackEl.textContent = "Goed zo! Deze bonusvraag is juist.";
       goodSound.currentTime = 0;
       goodSound.play().catch(()=>{});
     } else {
-      feedbackEl.textContent += " Dit is eigenlijk een " + correctLabel + ".";
+      feedbackEl.textContent = "Niet helemaal… Het juiste antwoord is: " + correctValue + ".";
       badSound.currentTime = 0;
       badSound.play().catch(()=>{});
     }
 
-    // Nu mag je verder naar volgende vraag
-    if(state.index < TOTAL-1){
-      nextBtn.disabled = false;
+    // volgende extra of afronden
+    state.extraIndex++;
+
+    if(state.extraIndex < state.extraTotal){
+      // nog een extra deelvraag
+      setTimeout(()=>renderExtraQuestion(), 700);
     } else {
-      setTimeout(()=>finishGame(), 1200);
+      // alle extra's zijn gedaan
+      state.extraOpen = false;
+      if(state.index < TOTAL-1){
+        nextBtn.disabled = false;
+      } else {
+        setTimeout(()=>finishGame(), 1200);
+      }
     }
   }
 
@@ -753,7 +859,7 @@
     if(state.finished) return;
     state.finished = true;
     stopCurrentAudio();
-    finalScoreEl.textContent = "Je score: " + state.score + " / " + MAX_SCORE;
+    finalScoreEl.textContent = "Je score: " + state.score + " / " + MAX_POINTS;
     endOverlay.style.display = 'flex';
   }
 
