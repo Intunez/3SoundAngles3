@@ -3,60 +3,65 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Soundangles — Startscherm</title>
+  <title>SoundAngles — Startscherm</title>
 
   <style>
     :root{
       --bg1:#1a0b2e; --bg2:#3b0b4e; --panel:#1d1233; --ink:#f8f1ff; --muted:#d7c8ef;
       --accent:#ff52d9; --accent2:#a855f7; --good:#22c55e; --bad:#ef4444;
     }
-    *{box-sizing:border-box; margin:0; padding:0;}
-
+    *{box-sizing:border-box}
+    html,body{height:100%}
     body{
+      margin:0;
       font-family:"Nunito",system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Inter,Arial,sans-serif;
       color:var(--ink);
       background:radial-gradient(1400px 800px at 70% -10%, var(--bg2) 0%, var(--bg1) 60%);
-      min-height:100vh;
       display:flex;
       flex-direction:column;
+      align-items:center;
+      justify-content:flex-start;
+      padding:16px;
     }
 
-    /* BOVENSTE NAVIGATIEBALK */
-    .nav-buttons {
+    /* bovenste navigatiebalk */
+    .nav-buttons{
+      width:100%;
+      max-width:1100px;
       display:flex;
       justify-content:center;
-      gap:28px;
-      padding:18px;
-      background:#2e104b;
-      border-bottom:2px solid #ff4fd6;
-      box-shadow:0 6px 18px rgba(0,0,0,0.45);
-    }
-
-    .nav-buttons a {
-      color:white;
-      text-decoration:none;
-      font-weight:800;
-      font-size:18px;
-      background:rgba(255,255,255,0.1);
-      padding:10px 20px;
+      gap:20px;
+      padding:14px 20px;
+      margin-bottom:20px;
+      background:linear-gradient(180deg,#2e104b,#1b0733);
       border-radius:999px;
-      transition:.2s;
+      border:2px solid #ff4fd6;
+      box-shadow:0 10px 30px rgba(0,0,0,.6);
     }
-
-    .nav-buttons a:hover {
+    .nav-buttons a{
+      font-size:18px;
+      font-weight:800;
+      color:#fff;
+      text-decoration:none;
+      background:rgba(12,0,32,.9);
+      padding:8px 22px;
+      border-radius:999px;
+      letter-spacing:.5px;
+      transition:.2s ease;
+    }
+    .nav-buttons a:hover{
       background:#ff4fd6;
+      transform:translateY(-2px) scale(1.04);
+      color:#160824;
     }
 
-    /* CONTENT */
     .wrap{
       max-width:980px;
       width:100%;
-      margin:0 auto;
-      padding:30px 16px 60px;
-      flex:1;
       display:flex;
       flex-direction:column;
-      gap:26px;
+      gap:24px;
+      margin-top:20px;
     }
 
     header{
@@ -64,10 +69,10 @@
     }
 
     h1{
-      font-size:clamp(34px,4vw,52px);
+      margin:0 0 6px 0;
+      font-size:clamp(36px,5vw,56px);
+      letter-spacing:.16em;
       text-transform:uppercase;
-      letter-spacing:.12em;
-      margin-bottom:10px;
       color:#ffffff;
       text-shadow:
         0 0 8px rgba(255,255,255,1),
@@ -76,15 +81,12 @@
         0 0 54px rgba(147,51,234,0.8);
     }
 
-    .welcome-text{
-      text-align:center;
-      font-size:19px;
-      opacity:0.9;
-      margin-bottom:15px;
-      line-height:1.5;
+    .subtitle{
+      margin:0;
+      font-size:16px;
+      color:var(--muted);
     }
 
-    /* LEVEL KAARTEN */
     .levels{
       display:grid;
       grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
@@ -95,109 +97,147 @@
       background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.02));
       border-radius:20px;
       border:1px solid rgba(255,255,255,.12);
-      padding:20px 18px;
       box-shadow:0 16px 40px rgba(0,0,0,.45);
+      padding:18px 18px 16px;
       display:flex;
       flex-direction:column;
       gap:10px;
     }
-
     .card-title{
-      font-size:22px;
-      margin-bottom:6px;
+      margin:0;
+      font-size:20px;
     }
-
     .badge{
       display:inline-flex;
-      padding:4px 10px;
+      align-items:center;
+      justify-content:center;
       border-radius:999px;
-      background:rgba(255,255,255,.1);
-      border:1px solid rgba(255,255,255,.18);
+      padding:4px 10px;
       font-size:12px;
+      background:rgba(0,0,0,.28);
+      border:1px solid rgba(255,255,255,.18);
+      color:var(--muted);
       text-transform:uppercase;
+      letter-spacing:.08em;
+    }
+    .list{
+      margin:4px 0 0 0;
+      padding-left:18px;
+      font-size:14px;
       color:var(--muted);
     }
+    .list li{margin:2px 0}
 
-    .list{ font-size:14px; color:var(--muted); padding-left:18px;}
-    .list li{ margin:3px 0;}
-
-    /* BUTTONS */
-    .btn{
-      display:inline-block;
-      padding:12px 22px;
+    button{
+      appearance:none;
+      border:none;
       border-radius:16px;
-      font-size:16px;
-      font-weight:800;
+      padding:10px 16px;
+      font-weight:900;
       cursor:pointer;
-      text-decoration:none;
       background:linear-gradient(180deg,var(--accent),var(--accent2));
       color:#160824;
-      margin-top:12px;
-      transition:.2s;
+      font-size:16px;
       align-self:flex-start;
+      margin-top:6px;
+      box-shadow:0 10px 25px rgba(0,0,0,.45);
+      transition:.15s transform ease,.2s filter ease;
+      text-decoration:none;
     }
-
-    .btn:hover{ filter:brightness(1.06); transform:translateY(-2px); }
+    button:hover{filter:brightness(1.06)}
+    button:active{transform:translateY(1px)}
 
     .btn-secondary{
       background:linear-gradient(180deg,#22c55e,#16a34a);
-      color:white;
     }
 
+    a.btn-link{
+      text-decoration:none;
+      color:inherit;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+    }
+
+    @media (max-width:600px){
+      .nav-buttons{
+        flex-wrap:wrap;
+        row-gap:10px;
+      }
+    }
   </style>
 </head>
 <body>
 
   <!-- NAVIGATIEBALK -->
   <div class="nav-buttons">
-    <a href="index.html">Home</a>
+    <a href="home.html">Home</a>
     <a href="intro.html">Intro</a>
     <a href="level1.html">Level 1</a>
     <a href="level2.html">Level 2</a>
+    <a href="level3.html">Level 3</a>
   </div>
 
   <div class="wrap">
-
     <header>
       <h1>SOUNDANGLES</h1>
-      <p class="welcome-text">
+      <p class="subtitle">
         Welkom bij SoundAngles!<br>
         Luister goed naar de muziek en link de juiste hoeken aan elkaar.
       </p>
     </header>
 
     <section class="levels">
-
       <!-- LEVEL 1 -->
       <article class="card">
         <div class="badge">Level 1</div>
         <h2 class="card-title">Binnen- of buitenhoek?</h2>
-        <p>
-          Luister naar de muzikale hint en kies of het een <strong>binnenhoek</strong>
-          of een <strong>buitenhoek</strong> is.
+        <p class="subtitle" style="margin-top:2px">
+          Is het een <strong>binnenhoek</strong> of een <strong>buitenhoek</strong>?<br>
+          Luister naar de muzikale hint en kies de juiste soort hoek.
         </p>
-        <a class="btn btn-secondary" href="level1.html">Speel Level 1</a>
+        <button class="btn-secondary">
+          <a class="btn-link" href="level1.html">Speel Level 1</a>
+        </button>
       </article>
 
       <!-- LEVEL 2 -->
       <article class="card">
         <div class="badge">Level 2</div>
         <h2 class="card-title">Soorten hoeken met muziek</h2>
-
-        <p>Herken welke soort hoeken bij elkaar horen:</p>
+        <p class="subtitle" style="margin-top:2px">
+          Herken met behulp van muziek welke soort hoeken je ziet.
+        </p>
         <ul class="list">
           <li>overeenkomstige hoeken</li>
           <li>verwisselende binnenhoeken</li>
           <li>verwisselende buitenhoeken</li>
-          <li>binnenhoeken aan dezelfde kant</li>
-          <li>buitenhoeken aan dezelfde kant</li>
+          <li>binnenhoeken aan dezelfde kant van de snijlijn</li>
+          <li>buitenhoeken aan dezelfde kant van de snijlijn</li>
         </ul>
-
-        <a class="btn" href="level2.html">Speel Level 2</a>
+        <button>
+          <a class="btn-link" href="level2.html">Speel Level 2</a>
+        </button>
       </article>
 
+      <!-- LEVEL 3 -->
+      <article class="card">
+        <div class="badge">Level 3</div>
+        <h2 class="card-title">Hoekensom van veelhoeken</h2>
+        <p class="subtitle" style="margin-top:2px">
+          Luister naar de muziek en bepaal de <strong>som van de hoeken</strong> van de figuur:
+          driehoeken, vierhoeken en veelhoeken.
+        </p>
+        <ul class="list">
+          <li>som = 180° bij een driehoek</li>
+          <li>som = 360° bij een vierhoek</li>
+          <li>som = (n−2)·180° bij een n-hoek</li>
+        </ul>
+        <button>
+          <a class="btn-link" href="level3.html">Speel Level 3</a>
+        </button>
+      </article>
     </section>
   </div>
-
 </body>
 </html>
