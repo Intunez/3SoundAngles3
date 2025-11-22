@@ -190,12 +190,6 @@
       width:100%;
     }
 
-    @media (min-width:720px){
-      .options{
-        grid-template-columns:1fr;
-      }
-    }
-
     .opt-main,
     .opt-extra{
       padding:12px 14px;
@@ -214,6 +208,9 @@
       background:rgba(30,10,60,.95);
       transform:translateY(-1px);
       box-shadow:0 10px 26px rgba(0,0,0,.6);
+    }
+    .opt-main.selected{
+      outline:2px solid rgba(255,255,255,.6);
     }
     .opt-main.correct,
     .opt-extra.correct{
@@ -407,14 +404,15 @@
   </div>
 
 <script>
-  /* ========= VRAGEN & AUDIOKOPPELING ========= */
+  /* ========= ANTWOORDLABELS ========= */
 
-  // Hoofdvraag is nog altijd: welke hoeksom hoort erbij?
   const ANSWER_TYPES = [
     { id: "triangle",      label: "Som = 180°" },
     { id: "quadrilateral", label: "Som = 360°" },
     { id: "polygon",       label: "Som = (n-2).180° of aantal driehoeken.180°" }
   ];
+
+  /* ========= VRAGEN & AUDIOKOPPELING ========= */
 
   const QUESTIONS = [
     // 1–3: driehoeken → som = 180° + bonus: soort driehoek
@@ -422,6 +420,7 @@
       img: "images/scherphoekige_driehoek.png",
       audio: "audio/sabre_dance_level3.mp3",
       type: "triangle",
+      correctTypes: ["triangle"],
       extra: {
         questions: [
           {
@@ -440,6 +439,7 @@
       img: "images/stomphoekige_driehoek.png",
       audio: "audio/lean_on_me_level3.mp3",
       type: "triangle",
+      correctTypes: ["triangle"],
       extra: {
         questions: [
           {
@@ -458,6 +458,7 @@
       img: "images/rechthoekige_driehoek.png",
       audio: "audio/mars_militaire.mp3",
       type: "triangle",
+      correctTypes: ["triangle"],
       extra: {
         questions: [
           {
@@ -473,38 +474,42 @@
       }
     },
 
-    // 4–6: vierhoeken → som = 360°, geen extra
+    // 4–6: vierhoeken → som = 360° ÉN (n-2).180° (twee juiste antwoorden)
     {
       img: "images/vierhoek_1.png",
       audio: "audio/vierhoek_level3.mp3",
-      type: "quadrilateral"
+      type: "quadrilateral",
+      correctTypes: ["quadrilateral", "polygon"]
     },
     {
       img: "images/vierhoek_2.png",
       audio: "audio/vierhoek_level3.mp3",
-      type: "quadrilateral"
+      type: "quadrilateral",
+      correctTypes: ["quadrilateral", "polygon"]
     },
     {
       img: "images/vierhoek_3.png",
       audio: "audio/vierhoek_level3.mp3",
-      type: "quadrilateral"
+      type: "quadrilateral",
+      correctTypes: ["quadrilateral", "polygon"]
     },
 
-    // 7–10: veelhoeken → som = (n-2).180° + extra voor 2,3,4
+    // 7: veelhoek_1 – jij wil die ook als “vierhoek-achtig” behandelen → 360° EN formule
     {
       img: "images/veelhoek_1.png",
-      audio: "audio/vierhoek_level3.mp3",
-      type: "quadrilateral"
+      audio: "audio/veelhoek_level3.mp3",
+      type: "quadrilateral",
+      correctTypes: ["quadrilateral", "polygon"]
     },
 
-    // veelhoek_2: drie extra deelvragen
+    // 8–10: veelhoeken → één juist antwoord + extra deelvragen
     {
       img: "images/veelhoek_2.png",
       audio: "audio/veelhoek_level3.mp3",
       type: "polygon",
+      correctTypes: ["polygon"],
       extra: {
         questions: [
-          
           {
             text: "Hoeveel driehoeken passen in deze veelhoek?",
             options: ["3", "10", "14"],
@@ -518,15 +523,13 @@
         ]
       }
     },
-
-    // veelhoek_3: drie extra deelvragen
     {
       img: "images/veelhoek_3.png",
       audio: "audio/veelhoek_level3.mp3",
       type: "polygon",
+      correctTypes: ["polygon"],
       extra: {
         questions: [
-         
           {
             text: "Hoeveel driehoeken passen in deze veelhoek?",
             options: ["3", "10", "14"],
@@ -540,15 +543,13 @@
         ]
       }
     },
-
-    // veelhoek_4: drie extra deelvragen
     {
       img: "images/veelhoek_4.png",
       audio: "audio/veelhoek_level3.mp3",
       type: "polygon",
+      correctTypes: ["polygon"],
       extra: {
         questions: [
-        
           {
             text: "Hoeveel driehoeken passen in deze veelhoek?",
             options: ["4", "5", "11"],
@@ -566,10 +567,11 @@
 
   const TOTAL = QUESTIONS.length;
 
-  // totaal aantal punten (hoofdvraag + alle extra's)
+  // totaal aantal punten (hoofdvraag = aantal juiste sommen + bonusvragen)
   const MAX_POINTS = QUESTIONS.reduce((sum, q) => {
+    const correctTypes = q.correctTypes || [q.type];
     const extraCount = q.extra ? q.extra.questions.length : 0;
-    return sum + 1 + extraCount;   // 1 voor hoofdvraag
+    return sum + correctTypes.length + extraCount;
   }, 0);
 
   /* ========= ELEMENTEN ========= */
@@ -644,7 +646,8 @@
     finished: false,
     extraOpen: false,
     extraIndex: 0,
-    extraTotal: 0
+    extraTotal: 0,
+    selectedMain: []   // ids die bij de hoofdvraag aangeklikt zijn
   };
 
   function shuffle(arr){
@@ -673,6 +676,7 @@
     state.extraOpen = false;
     state.extraIndex = 0;
     state.extraTotal = 0;
+    state.selectedMain = [];
 
     scoreEl.textContent = 0;
     roundEl.textContent = 1;
@@ -695,6 +699,7 @@
     state.extraOpen = false;
     state.extraIndex = 0;
     state.extraTotal = q.extra ? q.extra.questions.length : 0;
+    state.selectedMain = [];
 
     feedbackEl.textContent = "";
     nextBtn.disabled = true;
@@ -728,29 +733,82 @@
 
   function handleMainAnswer(chosenId, btnNode){
     if(state.locked || state.finished) return;
-    state.locked = true;
 
     const q = state.current;
-    const correctId = q.type;
+    const correctIds = q.correctTypes || [q.type];
 
-    // muziek stoppen bij antwoord
-    stopCurrentAudio();
+    // selectie toggelen
+    const alreadySelected = state.selectedMain.includes(chosenId);
+    if(alreadySelected){
+      state.selectedMain = state.selectedMain.filter(id => id !== chosenId);
+      btnNode.classList.remove('selected');
+    } else {
+      state.selectedMain.push(chosenId);
+      btnNode.classList.add('selected');
+    }
 
-    // alle hoofdknoopjes updaten
-    const all = [...document.querySelectorAll('.opt-main')];
-    all.forEach(n=>{
-      const id = n.dataset.id;
-      const isCorrect = (id === correctId);
-      n.classList.toggle('correct', isCorrect);
-      if(!isCorrect && n === btnNode){
-        n.classList.add('wrong');
+    // check of er een fout gekozen is
+    const hasWrong = state.selectedMain.some(id => !correctIds.includes(id));
+
+    if(hasWrong){
+      // fout → meteen afhandelen
+      state.locked = true;
+      stopCurrentAudio();
+
+      const all = [...document.querySelectorAll('.opt-main')];
+      all.forEach(n=>{
+        const id = n.dataset.id;
+        if(correctIds.includes(id)) n.classList.add('correct');
+        if(state.selectedMain.includes(id) && !correctIds.includes(id)){
+          n.classList.add('wrong');
+        }
+      });
+
+      let uitleg = "";
+      if(correctIds.length === 1){
+        if(correctIds[0] === "triangle"){
+          uitleg = "Correcte som is 180°.";
+        } else if(correctIds[0] === "quadrilateral"){
+          uitleg = "Correcte som is 360°.";
+        } else if(correctIds[0] === "polygon"){
+          uitleg = "Correcte som is (n-2).180° of aantal driehoeken.180°.";
+        }
+      } else {
+        // combinatie vierhoek
+        uitleg = "Je moest zowel 360° als (n-2).180° (of aantal driehoeken.180°) aanklikken.";
       }
-    });
 
-    if(chosenId === correctId){
-      state.score++;
+      feedbackEl.textContent = "Niet helemaal… " + uitleg;
+      badSound.currentTime = 0;
+      badSound.play().catch(()=>{});
+
+      if(state.extraTotal > 0){
+        state.extraOpen = false;
+      }
+
+      if(state.index < TOTAL-1){
+        nextBtn.disabled = false;
+      } else {
+        setTimeout(()=>finishGame(), 1200);
+      }
+      return;
+    }
+
+    // geen fout, maar al genoeg juiste antwoorden?
+    if(state.selectedMain.length === correctIds.length){
+      state.locked = true;
+      stopCurrentAudio();
+
+      const all = [...document.querySelectorAll('.opt-main')];
+      all.forEach(n=>{
+        const id = n.dataset.id;
+        if(correctIds.includes(id)) n.classList.add('correct');
+      });
+
+      // punten = aantal juiste sommen (1 of 2)
+      state.score += correctIds.length;
       scoreEl.textContent = state.score;
-      feedbackEl.textContent = "Goed gedaan! Dit is de juiste som.";
+      feedbackEl.textContent = "Goed gedaan! Je hebt alle juiste antwoorden aangeduid.";
       goodSound.currentTime = 0;
       goodSound.play().catch(()=>{});
 
@@ -758,27 +816,17 @@
       if(state.extraTotal > 0){
         state.extraOpen = true;
         renderExtraQuestion();
-        return; // wacht met 'Volgende vraag' tot alle extra's beantwoord zijn
+        return; // wacht met volgende vraag tot alle extra's gedaan zijn
       }
-    } else {
-      let uitleg = "";
-      if(correctId === 'triangle'){
-        uitleg = "Correcte som is 180°.";
-      } else if(correctId === 'quadrilateral'){
-        uitleg = "Correcte som is 360°.";
-      } else if(correctId === 'polygon'){
-        uitleg = "Correcte som is (n-2).180° of aantal driehoeken.180°.";
-      }
-      feedbackEl.textContent = "Niet helemaal… " + uitleg;
-      badSound.currentTime = 0;
-      badSound.play().catch(()=>{});
-    }
 
-    // Geen extra vragen → gewoon verder
-    if(state.index < TOTAL-1){
-      nextBtn.disabled = false;
+      if(state.index < TOTAL-1){
+        nextBtn.disabled = false;
+      } else {
+        setTimeout(()=>finishGame(), 1200);
+      }
     } else {
-      setTimeout(()=>finishGame(), 1200);
+      // nog niet alle juiste antwoorden gekozen, geen feedback
+      feedbackEl.textContent = "Kies alle juiste antwoorden.";
     }
   }
 
@@ -830,10 +878,8 @@
     state.extraIndex++;
 
     if(state.extraIndex < state.extraTotal){
-      // nog een extra deelvraag
       setTimeout(()=>renderExtraQuestion(), 700);
     } else {
-      // alle extra's zijn gedaan
       state.extraOpen = false;
       if(state.index < TOTAL-1){
         nextBtn.disabled = false;
